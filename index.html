@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>sonar sounds and droppables</title>
+
+    <style>
+        html {
+            max-width: 900px;
+            font-family: 'avenir next', helvetica;
+            color: #eee;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        div,
+        ul,
+        li {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: #111;
+            font-size: 1.4em;
+        }
+        
+        .emojis {
+            background: #202020;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .emojis div {
+            padding: 4px 6px;
+            background: #444;
+            border-radius: 4px;
+            flex-grow: 1;
+            display: inline-block;
+            margin: 8px;
+            user-select: none;
+        }
+        
+        #sound.emojis div {
+            cursor: pointer;
+        }
+        
+        a {
+            color: #eee;
+        }
+        
+        a:hover {
+            color: #444;
+            background: #fff;
+        }
+        
+        footer {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            font-size: 0.9em;
+        }
+    </style>
+
+    <script>
+        function copyThis(el) {
+            var range = document.createRange();
+            range.selectNode(el);
+            window.getSelection().addRange(range);
+            var successful = document.execCommand('copy');
+            if (successful) {
+                // show tooltip
+            }
+        }
+        // fetch the initial list of dreams
+        fetch("https://red-bush-0955.iain.workers.dev/")
+            .then(response => response.json()) // parse the JSON from the server
+            .then(data => {
+                const drop = document.getElementById("drop");
+                drop.innerHTML = "";
+                const sound = document.getElementById("sound");
+                data.drops.sort((a, b) => a.length > b.length).map(droppable => {
+                    const newEl = document.createElement("div");
+                    newEl.innerHTML = droppable;
+                    newEl.addEventListener('click', () => {
+                        copyThis(newEl);
+                    })
+                    drop.appendChild(newEl);
+                });
+                data.emojis.sort((a, b) => a.emoji.length > b.emoji.length).map(emoji => {
+                    const newEl = document.createElement("div");
+                    newEl.innerHTML = emoji.emoji;
+                    newEl.addEventListener('click', () => {
+                        const audio = document.getElementById('player');
+                        audio.src = emoji.sound;
+                        audio.load();
+                        audio.play();
+                    });
+                    newEl.addEventListener('dblclick', () => {
+                        copyThis(newEl);
+                    });
+                    sound.appendChild(newEl);
+                });
+            });
+    </script>
+</head>
+
+<body>
+    <main>
+        <section class="">
+            <h3>sound effects</h3>
+            <ul class="emojis" id="sound"></ul>
+            <h3>droppables</h3>
+            <ul class="emojis" id="drop">
+                <em>loading &hellip;</em>
+            </ul>
+        </section>
+        <audio id="player">
+  </main>
+  <footer>
+    <div>
+      for <a href="https://sonar.app">sonar</a>
+    </div>
+    <div>
+      by <a href="https://twitter.com/isiain">@isiain</a></div>
+    </div>
+  </footer>
+</body>
+
+</html>
